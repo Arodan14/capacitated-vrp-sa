@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+x64/
+VRP/x64/
+*.user
+*.pdb
+*.ilk
+*.idb
+*.obj
+*.tlog
+*.log
+*.recipe
+
+# Generated results
+annealing_progress.csv
+annealing_progress.svg
+routes_graph.svg
+exp_*_routes_graph.svg
+exp_*_annealing_progress.svg
+exp_*_annealing_progress.csv
+vrp.exe
+
+# VS Code
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VRP Report - Simulated Annealing</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <main class="page" data-component="report-page">
+        <section class="hero" data-component="hero-section">
+            <p class="eyebrow">Heuristic Algorithms Course Project</p>
+            <h1>Vehicle Routing Problem Using Simulated Annealing</h1>
+            <p>
+                This report presents a capacitated Vehicle Routing Problem solution built in C++ using
+                Simulated Annealing. The program reads the input instance from <code>VRP(nodes).csv</code>,
+                constructs feasible routes under the required constraints, and exports machine-readable
+                results (CSV/JSON) for charts and interactive maps in this report.
+            </p>
+            <div class="hero-actions">
+                <a class="hero-link" href="#results">View Results</a>
+                <a class="hero-link hero-link-secondary" href="#workflow">How to run</a>
+                <a class="hero-link hero-link-secondary" href="https://github.com/Arodan14/capacitated-vrp-sa" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+        </section>
+
+        <section class="grid" data-component="overview-grid">
+            <article class="card" data-component="problem-setting-card">
+                <h2>Problem Setting</h2>
+                <div class="tag-row">
+                    <span class="tag">200 Customers</span>
+                    <span class="tag">1 Depot</span>
+                    <span class="tag">Capacity 100</span>
+                    <span class="tag">SA Metaheuristic</span>
+                </div>
+                <ul>
+                    <li>Each route starts and ends at the depot.</li>
+                    <li>Each customer is visited exactly once.</li>
+                    <li>Vehicle capacity cannot exceed 100.</li>
+                    <li>The objective is to minimize fixed and transportation costs.</li>
+                </ul>
+            </article>
+
+            <article class="card" data-component="problem-overview-card">
+                <h2>Problem Overview</h2>
+                <p>
+                    The Vehicle Routing Problem asks how a fleet of vehicles should leave a depot, visit all
+                    customers, satisfy their demand, and return to the depot at minimum cost. In this project,
+                    the cost combines a fixed truck cost and a load-based transportation cost.
+                </p>
+                <p>
+                    Because VRP is computationally difficult, the project uses a heuristic approach instead of
+                    exact optimization. The goal is to reach a strong feasible solution in reasonable time.
+                </p>
+            </article>
+
+            <article class="card" data-component="dataset-card">
+                <h2>Dataset Format</h2>
+                <p>The solver reads the following CSV structure:</p>
+                <pre>ID,X,Y,Demand</pre>
+                <ul>
+                    <li><code>ID</code>: node identifier</li>
+                    <li><code>X</code>, <code>Y</code>: node coordinates</li>
+                    <li><code>Demand</code>: customer demand</li>
+                    <li>Node <code>0</code> is the depot</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="card" data-component="algorithm-card">
+            <h2>Algorithm Overview</h2>
+            <p>
+                Simulated Annealing starts from an initial feasible solution, explores neighboring solutions,
+                and uses a temperature-controlled acceptance rule to avoid getting trapped too early in poor
+                local minima.
+            </p>
+            <ol>
+                <li>Load nodes and demands from the CSV file.</li>
+                <li>Build a full distance matrix.</li>
+                <li>Create an initial feasible solution using a greedy nearest-neighbor rule.</li>
+                <li>Generate neighbor solutions using route swap and relocation moves.</li>
+                <li>Accept better solutions directly and sometimes accept worse ones based on temperature.</li>
+                <li>Keep track of the best solution found while the temperature cools down.</li>
+                <li>Export annealing progress (CSV/JSON) and the final solution (JSON) for reporting.</li>
+            </ol>
+        </section>
+
+        <section class="grid" data-component="summary-grid">
+            <article class="card" data-component="parameters-card">
+                <h2>Implemented Parameters</h2>
+                <ul class="compact-list">
+                    <li><code>VEHICLE_CAPACITY = 100</code></li>
+                    <li><code>NUM_CUSTOMERS = 200</code></li>
+                    <li><code>ESTIMATED_VEHICLES_NEEDED = 33</code></li>
+                    <li><code>COST_PER_TRUCK = 500.0</code></li>
+                    <li><code>COST_PER_KM = 0.024</code></li>
+                    <li><code>T_MAX = 100000</code></li>
+                    <li><code>T_MIN = 1</code></li>
+                    <li><code>ALPHA = 0.995</code></li>
+                    <li><code>ITER = 1000</code></li>
+                </ul>
+            </article>
+
+            <article class="card" data-component="complexity-card">
+                <h2>Complexity Summary</h2>
+                <p>The greedy initial solution is approximately <code>O(n^2)</code>.</p>
+                <p>The Simulated Annealing phase is approximately:</p>
+                <pre>O(L * ITER * n)</pre>
+                <p>
+                    where <code>n</code> is the number of customers, <code>L</code> is the number of cooling
+                    levels, and <code>ITER</code> is the number of iterations performed at each temperature.
+                </p>
+            </article>
+        </section>
+
+        <section class="card" id="results" data-component="results-table-card">
+            <h2>Temperature Tuning Results</h2>
+            <p>
+                The following experiments were generated by running the program multiple times with the same
+                random seed and changing the Simulated Annealing parameters.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Experiment</th>
+                        <th>T_MAX</th>
+                        <th>ALPHA</th>
+                        <th>ITER</th>
+                        <th>Final Cost</th>
+                        <th>Distance</th>
+                        <th>Vehicles</th>
+                        <th>Runtime</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A</td>
+                        <td>100000</td>
+                        <td>0.995</td>
+                        <td>1000</td>
+                        <td>20234.9</td>
+                        <td>4598.26</td>
+                        <td>33</td>
+                        <td>23.98 s</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>50000</td>
+                        <td>0.995</td>
+                        <td>1000</td>
+                        <td>20341.1</td>
+                        <td>4591.55</td>
+                        <td>33</td>
+                        <td>22.54 s</td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>100000</td>
+                        <td>0.990</td>
+                        <td>1000</td>
+                        <td>20341.1</td>
+                        <td>4591.55</td>
+                        <td>33</td>
+                        <td>12.07 s</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="highlight">Experiment A produced the best final cost among the tested settings.</p>
+        </section>
+
+        <section class="grid chart-grid" data-component="chart-grid">
+            <article class="card" data-component="cost-chart-card">
+                <h2>Cost Comparison</h2>
+                <p>This chart compares the final solution cost for each tested parameter configuration.</p>
+                <div class="chart-panel visual-block">
+                    <button type="button" class="visual-expand-btn" data-enlarge-snapshot="cost-chart" data-enlarge-title="Cost comparison">Larger view</button>
+                    <canvas id="cost-chart" class="chart-canvas"></canvas>
+                </div>
+            </article>
+
+            <article class="card" data-component="runtime-chart-card">
+                <h2>Runtime Comparison</h2>
+                <p>This chart highlights the runtime tradeoff between stronger exploration and faster cooling.</p>
+                <div class="chart-panel">
+                    <canvas id="runtime-chart" class="chart-canvas"></canvas>
+                </div>
+            </article>
+        </section>
+
+        <section class="grid chart-grid" data-component="performance-grid">
+            <article class="card" data-component="distance-chart-card">
+                <h2>Distance Comparison</h2>
+                <p>Distance stayed close across the tested runs, even when total cost changed.</p>
+                <div class="chart-panel visual-block">
+                    <button type="button" class="visual-expand-btn" data-enlarge-snapshot="distance-chart" data-enlarge-title="Distance comparison">Larger view</button>
+                    <canvas id="distance-chart" class="chart-canvas"></canvas>
+                </div>
+            </article>
+
+            <article class="card" data-component="performance-notes-card">
+                <h2>Performance Interpretation</h2>
+                <ul>
+                    <li>Higher exploration improved the final cost but increased runtime.</li>
+                    <li>Lower cooling factors reduced execution time noticeably.</li>
+                    <li>Distance alone did not fully explain solution quality because the cost function also includes load and truck cost.</li>
+                    <li>This is why the report compares cost, distance, vehicles, and runtime together.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="grid" data-component="visualization-grid">
+            <article class="card" data-component="route-figure-card">
+                <h2>Final Route Visualization</h2>
+                <p>Interactive map for Experiment A (best final cost). Geometry is loaded from <code>assets/exp_a_solution.json</code>.</p>
+                <div class="viz-panel">
+                    <canvas id="route-map-canvas" aria-label="Final route map"></canvas>
+                </div>
+                <p class="viz-status" id="route-viz-status"></p>
+            </article>
+
+            <article class="card" data-component="animation-figure-card">
+                <h2>Animated Route Playback</h2>
+                <p>Canvas animation with staggered truck markers along each route (same data as the map above).</p>
+                <div class="viz-panel visual-block">
+                    <button type="button" class="visual-expand-btn" data-enlarge-snapshot="route-animation-canvas" data-enlarge-title="Route animation (current frame)">Larger view</button>
+                    <canvas id="route-animation-canvas" aria-label="Animated routes"></canvas>
+                    <div class="viz-toolbar">
+                        <button type="button" id="route-animation-play">Play</button>
+                        <button type="button" id="route-animation-stop">Stop</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-component="animation-notes-card">
+                <h2>Animation Notes</h2>
+                <ul>
+                    <li>Each moving marker represents a truck following one final route.</li>
+                    <li>The trucks are staggered in time to make the route sequence easier to observe.</li>
+                    <li>This animation shows the final best solution, not the full optimization process.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="grid" data-component="progress-grid">
+            <article class="card" data-component="progress-figure-card">
+                <h2>Optimization Progress</h2>
+                <p>
+                    Dual-axis chart for Experiment A: best feasible cost (left) and temperature on a log scale (right).
+                    Data source: <code>assets/exp_a_annealing_progress.json</code> (from the solver CSV/JSON export).
+                </p>
+                <div class="progress-chart-panel visual-block">
+                    <button type="button" class="visual-expand-btn" data-enlarge-snapshot="progress-chart" data-enlarge-title="Optimization progress (cost and temperature)">Larger view</button>
+                    <canvas id="progress-chart" aria-label="Annealing progress"></canvas>
+                </div>
+                <p class="viz-status" id="progress-chart-status"></p>
+            </article>
+        </section>
+
+        <section class="card" data-component="discussion-card">
+            <h2>Discussion</h2>
+            <ul>
+                <li>Experiment A achieved the best cost, suggesting that the larger initial temperature improved exploration.</li>
+                <li>Experiment C finished much faster because the lower cooling factor reduced the number of temperature levels.</li>
+                <li>Experiments B and C produced the same final cost in this test, showing that faster convergence may reduce solution quality.</li>
+                <li>The results indicate a clear tradeoff between runtime and final solution quality.</li>
+                <li>Future work can include more parameter combinations, multiple random seeds, and stronger neighborhood operators such as 2-opt.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="workflow" data-component="workflow-card">
+            <h2>How to run this project</h2>
+            <p>
+                Source code and issue tracker:
+                <a href="https://github.com/Arodan14/capacitated-vrp-sa" target="_blank" rel="noopener noreferrer">github.com/Arodan14/capacitated-vrp-sa</a>
+                (clone URL: <code>https://github.com/Arodan14/capacitated-vrp-sa.git</code>).
+            </p>
+            <ol>
+                <li>
+                    <strong>Dataset:</strong> keep <code>VRP(nodes).csv</code> in the project root (the solver reads it from the working directory).
+                </li>
+                <li>
+                    <strong>Build (MSVC):</strong> open a developer shell (x64), <code>cd</code> into the repo, then compile with <code>cl</code>.
+                    Example (adjust the Visual Studio path if you use 2022 or another edition):
+                </li>
+            </ol>
+            <pre>cd path\to\VRP
+cmd /c "\"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat\" &amp;&amp; cl /EHsc /I include main.cpp src\Route.cpp src\Solution.cpp src\VRPProblem.cpp src\SimulatedAnnealingSolver.cpp src\SolutionVisualizer.cpp /Fe:vrp.exe"</pre>
+            <ol start="3">
+                <li>
+                    <strong>Run the solver:</strong> <code>.\vrp.exe</code> writes <code>annealing_progress.csv</code>, <code>annealing_progress.json</code>, and <code>solution.json</code> next to the executable.
+                    Use flags such as <code>--prefix exp_a_</code> to prefix output filenames when comparing experiments.
+                </li>
+                <li>
+                    <strong>Report JSON in <code>docs/report/assets/</code>:</strong> copy or rename solver outputs for the bundled Experiment A filenames, or run
+                    <code>python tools/generate_report_assets.py</code> from the repo root when you already have <code>exp_a_routes_graph.svg</code> and progress CSV there.
+                </li>
+                <li>
+                    <strong>View this report:</strong> serve <code>docs/report</code> over HTTP (for example <code>npx serve docs/report</code>) so the browser can load JSON from <code>assets/</code>.
+                    Use <strong>Larger view</strong> on any chart or map to open a full-size dialog (route map redraws crisply; charts use a high-resolution canvas snapshot).
+                </li>
+            </ol>
+        </section>
+    </main>
+
+    <dialog class="viz-enlarge-dialog" id="viz-enlarge-dialog" aria-labelledby="viz-enlarge-title">
+        <div class="viz-enlarge-header">
+            <h2 id="viz-enlarge-title">Figure</h2>
+            <button type="button" class="viz-enlarge-close" id="viz-enlarge-close" aria-label="Close">Close</button>
+        </div>
+        <div class="viz-enlarge-body" id="viz-enlarge-body"></div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/experiment-repository.js"></script>
+    <script src="js/viz/route-palette.js"></script>
+    <script src="js/viz/coordinate-mapper.js"></script>
+    <script src="js/viz/route-map-view.js"></script>
+    <script src="js/viz/route-animation-controller.js"></script>
+    <script src="js/viz/optimization-progress-chart.js"></script>
+    <script src="js/viz/report-visualizations.js"></script>
+    <script src="js/enlarge-visual-modal.js"></script>
+    <script src="js/chart-renderers.js"></script>
+    <script src="js/report-charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
